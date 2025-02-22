@@ -1,4 +1,5 @@
 # Image Filtering-Based Positive Sample Pair Cropping for Contrastive Learning Optimization
+[![DOI](https://zenodo.org/badge/937145025.svg)](https://doi.org/10.5281/zenodo.14910536)
 
 [//]: # (![banner]&#40;&#41;)
 
