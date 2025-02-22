@@ -103,7 +103,7 @@ Optional Configurations
 # ImageNet 1k
 python moco_Fcrop_amp.py --cfg=moco/in1000_Fcrop --i=false               # mixed precision training (float16)
 python moco_Fcrop.py --cfg=moco/in1000_Fcrop --i=false
-
+```
 
 ### Resume Training
 
