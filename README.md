@@ -79,7 +79,7 @@ python [model]_[type].py \       #
 ```
 ### Change the Training Config File
 
-path:./cfg/moco/in1000_Fcrop.yml
+path: ./cfg/moco/in1000_Fcrop.yml
 ```
 in1000_Fcrop.yml:
 
