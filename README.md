@@ -91,9 +91,6 @@ dataset:
 
 ...
 ```
-
-### Linear Evaluation with Pre-trained Weights Provided in the Paper
-
 ### Training Pre-trained Weights and Conducting Linear Evaluation
 Run
 ```
@@ -107,18 +104,27 @@ Optional Configurations
 python moco_Fcrop_amp.py --cfg=moco/in1000_Fcrop --i=false               # mixed precision training (float16)
 python moco_Fcrop.py --cfg=moco/in1000_Fcrop --i=false
 
-## Codes
-The code related to the FilteringCrop is as follows: \
-./build/util/F_Crop_util.py \
+
+### Resume Training
+
+```
+├── FilteringCrop/
+    ├── ...
+    ├── moco_in100_Fcrop_y-m-d_h               # log dir
+    ├── ...
+
+
+python moco_Fcrop_amp.py \
+--cfg=moco/in1000_Fcrop \
+--r=moco_in100_Fcrop_y-m-d_h \               # resume configure
+--i=false
+```
+
+### Codes
+
+The code related to the FilteringCrop is as follows: 
+```
+./build/util/F_Crop_util.py 
 ./build/datasets/transform/F_Crop.py
+```
 
-
-[//]: # (## Contributing)
-
-[//]: # ()
-[//]: # ([//]: # &#40;See [the contributing file]&#40;CONTRIBUTING.md&#41;!&#41;)
-[//]: # ()
-[//]: # (### Any optional sections)
-
-[//]: # ()
-[//]: # ([//]: # &#40;## License&#41;)
