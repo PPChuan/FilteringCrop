@@ -1,0 +1,104 @@
+# run_parameters
+run_p:
+  pretrain_lr: &pretrain_lr 0.5
+  ft_lr: &ft_lr 10.0
+  pretrain_batch_size: 512
+  ft_batch_size: 512
+  val_batch_size: 512
+  pretrain_epoch: &pretrain_epoch 500
+  ft_epoch: &ft_epoch 100
+  network: BYOL
+  dataset: &dataset Tiny200
+  optimizer: &op SGD
+
+#model
+model:
+  type: ResNet
+  features_dim: &dim 512
+  maxpool: False
+  depth: 18
+byol:
+  type: BYOL
+  dim: *dim
+  pred_dim: 128
+  m: 0.996
+
+# run_device
+run_d:
+  num_workers: 8
+
+# criterion, loss
+loss:
+  pretrain:
+    type: CosineSimilarity
+    dim: 1
+  ft:
+    type: CrossEntropyLoss
+
+# optimizer
+op:
+  pretrain:
+    type: *op
+    lr: *pretrain_lr
+    momentum: 0.9
+    weight_decay: 0.0001
+  ft:
+    type: *op
+    lr: *ft_lr
+    momentum: 0.9
+    weight_decay: 0
+
+# dataset
+dataset:
+  root: root
+  type: *dataset
+  num_classes: 200
+  pretrain:
+    type: Tiny200_ccrop
+    transform_rcrop:
+      type: tiny200_train_rcrop
+      mean: 0.4802, 0.4481, 0.3975
+      std: 0.2302, 0.2265, 0.2262
+    transform_ccrop:
+      type: tiny200_train_ccrop
+      alpha: 0.1
+      mean: 0.4802, 0.4481, 0.3975
+      std: 0.2302, 0.2265, 0.2262
+  ft:
+    transform:
+      type: tiny200_linear
+      mean: 0.4802, 0.4481, 0.3975
+      std: 0.2302, 0.2265, 0.2262
+  val:
+    transform:
+      type: tiny200_test
+      mean: 0.4802, 0.4481, 0.3975
+      std: 0.2302, 0.2265, 0.2262
+
+# adjust lr
+lr_cfg:
+  pretrain:
+    type: Cosine
+    steps: *pretrain_epoch
+    lr: *pretrain_lr
+    decay_rate: 0.07
+    re_lr: 0
+    warmup_steps: 0
+  ft:
+    type: MultiStep
+    steps: *ft_epoch
+    lr: *ft_lr
+    decay_rate: 0.1
+    decay_steps:
+      - 60
+      - 80
+# Ccrop
+box:
+  warmup_epochs: 100
+  loc_interval: 100
+  box_thresh: 0.1
+
+port: 10001
+save_interval:
+  pretrain: 250
+  ft: 50

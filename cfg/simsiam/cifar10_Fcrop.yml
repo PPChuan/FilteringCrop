@@ -1,0 +1,108 @@
+# run_parameters
+run_p:
+  pretrain_lr: &pretrain_lr 0.5
+  ft_lr: &ft_lr 10.0
+  pretrain_batch_size: 512
+  ft_batch_size: 512
+  val_batch_size: 512
+  pretrain_epoch: &pretrain_epoch 500
+  ft_epoch: &ft_epoch 100
+  network: SimSiam
+  dataset: &dataset CIFAR10
+  optimizer: &op SGD
+
+#model
+model:
+  type: ResNet
+  features_dim: &dim 512
+  maxpool: False
+  depth: 18
+  zero_init_residual: True
+simsiam:
+  type: SimSiam
+  dim: *dim
+  pred_dim: 128
+
+# run_device
+run_d:
+  num_workers: 4
+
+# criterion, loss
+loss:
+  pretrain:
+    type: CosineSimilarity
+    dim: 1
+  ft:
+    type: CrossEntropyLoss
+
+# optimizer
+op:
+  pretrain:
+    type: *op
+    lr: *pretrain_lr
+    momentum: 0.9
+    weight_decay: 0.0001
+  ft:
+    type: *op
+    lr: *ft_lr
+    momentum: 0.9
+    weight_decay: 0
+
+# dataset
+dataset:
+  root: root
+  type: *dataset
+  num_classes: 10
+  pretrain:
+    type: CIFAR10_Fcrop_sstd
+    train: True
+    transform:
+      type: cifar_train_Fcrop_sstd
+      mean: 0.4914, 0.4822, 0.4465
+      std: 0.2023, 0.1994, 0.2010
+  ft:
+    train: True
+    transform:
+      type: cifar_linear
+      mean: 0.4914, 0.4822, 0.4465
+      std: 0.2023, 0.1994, 0.2010
+  val:
+    train: False
+    transform:
+      type: cifar_test
+      mean: 0.4914, 0.4822, 0.4465
+      std: 0.2023, 0.1994, 0.2010
+
+center:
+  warmup_epochs: 0
+  #  update_interval
+  u_interval: 50
+  #  optimization ratio
+  o_ratio: 0.6
+  #  normal distribution
+  s_std: 0.2
+  e_std: 0.1
+
+# adjust lr
+lr_cfg:
+  pretrain:
+    type: Cosine
+    steps: *pretrain_epoch
+    lr: *pretrain_lr
+    decay_rate: 0.07
+    re_lr: 0
+    warmup_steps: 0
+  ft:
+    type: MultiStep
+    steps: *ft_epoch
+    lr: *ft_lr
+    decay_rate: 0.1
+    decay_steps:
+      - 60
+      - 80
+
+fix_pred_lr: True
+port: 10001
+save_interval:
+  pretrain: 250
+  ft: 50

@@ -1,0 +1,103 @@
+# run_parameters
+run_p:
+  pretrain_lr: &pretrain_lr 0.5
+  ft_lr: &ft_lr 10.0
+  pretrain_batch_size: 512
+  ft_batch_size: 512
+  val_batch_size: 512
+  pretrain_epoch: &pretrain_epoch 500
+  ft_epoch: &ft_epoch 100
+  network: SimCLR
+  dataset: &dataset CIFAR100
+  optimizer: &op SGD
+
+#model
+model:
+  type: ResNet
+  features_dim: 128
+  maxpool: False
+  depth: 18
+
+# run_device
+run_d:
+  num_workers: 4
+
+# criterion, loss
+loss:
+  pretrain:
+    type: NT_Xent_dist
+    temperature: 0.5
+    base_temperature: 0.07
+  ft:
+    type: CrossEntropyLoss
+
+# optimizer
+op:
+  pretrain:
+    type: *op
+    lr: *pretrain_lr
+    momentum: 0.9
+    weight_decay: 0.0001
+  ft:
+    type: *op
+    lr: *ft_lr
+    momentum: 0.9
+    weight_decay: 0
+
+# dataset
+dataset:
+  root: root
+  type: *dataset
+  num_classes: 100
+  pretrain:
+    type: CIFAR100_ccrop
+    train: True
+    transform_rcrop:
+      type: cifar_train_rcrop
+      mean: 0.5071, 0.4867, 0.4408
+      std: 0.2675, 0.2565, 0.2761
+    transform_ccrop:
+      type: cifar_train_ccrop
+      alpha: 0.1
+      mean: 0.5071, 0.4867, 0.4408
+      std: 0.2675, 0.2565, 0.2761
+  ft:
+    train: True
+    transform:
+      type: cifar_linear
+      mean: 0.5071, 0.4867, 0.4408
+      std: 0.2675, 0.2565, 0.2761
+  val:
+    train: False
+    transform:
+      type: cifar_test
+      mean: 0.5071, 0.4867, 0.4408
+      std: 0.2675, 0.2565, 0.2761
+
+# adjust lr
+lr_cfg:
+  pretrain:
+    type: Cosine
+    steps: *pretrain_epoch
+    lr: *pretrain_lr
+    decay_rate: 0.07
+    re_lr: 0
+    warmup_steps: 0
+  ft:
+    type: MultiStep
+    steps: *ft_epoch
+    lr: *ft_lr
+    decay_rate: 0.1
+    decay_steps:
+      - 60
+      - 80
+# Ccrop
+box:
+  warmup_epochs: 100
+  loc_interval: 100
+  box_thresh: 0.1
+
+port: 10001
+save_interval:
+  pretrain: 250
+  ft: 50
